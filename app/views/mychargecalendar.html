@@ -16,13 +16,7 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 text-center" style="margin: 0 auto;">
-            <div class="btn-group">
-                <button class="btn btn-default btn btn-primary" ng-click="vm.reset()">Reset</button>
-            </div>
-        </div>
-    </div>
+
     <h4 class="row text-center fatigue-header"><a href="#chart" style="color:#FFF; font-size: 16px;">Return to Response Time Graph</a></h4>
 
     <mwl-calendar events="vm.events"
@@ -42,11 +36,14 @@
         -->
     </mwl-calendar>
     <div class="row legend-row">
-      <div class="col-md-12 text-left">
+      <div class="col-xs-9 text-left"style="padding-right:0; padding-left:0;">
         <div><div class="d-e-circle">&nbsp;</div> = Default Sleep Event</div>
         <div><div class="c-s-circle">&nbsp;</div> = Custom Sleep Event</div>
         <div><div class="c-c-circle">&nbsp;</div> = Custom Caffeine Event</div>
 
+      </div>
+      <div class="col-md-2 text-right" style="float:right; padding-right:0; padding-left:0;">
+                    <button class="btn btn-default btn btn-primary" ng-click="vm.reset()" style="max-width:none;margin-top:5px;">Reset</button>
       </div>
     </div>
     <!-- sleep modal -->

@@ -1357,3 +1357,19 @@ div.modal-content > form > div.modal-header {
 .mobile-input-fix{
   max-width: 94%;
 }
+.zero-sleep {
+  display: none;
+}
+.pull-left.event.zero-sleep {
+  display: none;
+}
+.highlight-calendar-cell {
+  background-color: rgba(145, 208, 130, 0.45);
+}
+.cal-day-today span[data-cal-date] {
+
+}
+.events-list {
+  right: 2px!important;
+      left: inherit!important;
+}
