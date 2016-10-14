@@ -24,8 +24,8 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         var makeSleepDuration = function(sel) {
             var durations = [];
             var selectedObj = {
-                ts: 0,
-                txt: "00:00"
+                ts: 900000,     //default to 15 mins
+                txt: "0 hr 15 min"
             };
 
             for (var i = 0; i < 24; i++) {
@@ -40,9 +40,10 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                         selectedObj = ele;
                     }
 
-                    durations.push(ele);
+                    if(ts > 0) {
+                        durations.push(ele);
+                    }
                 }
-
             }
 
             return {

@@ -551,8 +551,8 @@ myServices.factory('DataPredictionService', ['$http', 'BASE_API_URL', 'localStor
                 //console.log(data);
                 data.statistic = PREDICTION_STATISTIC;
                 //https://atsaptest.cssiinc.com/alertnessdev/svc/
-                //$http.put(BASE_API_URL + 'data/prediction',data)
-                $http.put('https://atsaptest.cssiinc.com/alertness/svc/' + 'data/prediction',data)
+                $http.put(BASE_API_URL + 'data/prediction',data)
+                //$http.put('https://atsaptest.cssiinc.com/alertness/svc/' + 'data/prediction',data)
                     .success(function(response){
                         var r = {
                             numDays: data.numDays,
