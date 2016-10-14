@@ -40,7 +40,9 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                         selectedObj = ele;
                     }
 
-                    durations.push(ele);
+                    if (!(ts == i && ts == j )){
+                        durations.push(ele);
+                    }
                 }
 
             }
