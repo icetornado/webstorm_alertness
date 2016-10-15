@@ -219,7 +219,7 @@ myServices.factory('ProfileDataService',  ['$http', 'BASE_API_URL', 'GuestDataSe
         };
 
         service.getProfile = function(username, callback){
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.get(BASE_API_URL + 'user/profile')
                     .success(function(response){
                         callback(response);
@@ -235,7 +235,7 @@ myServices.factory('ProfileDataService',  ['$http', 'BASE_API_URL', 'GuestDataSe
         };
 
         service.setProfile = function(username, chronoMorning, chronoEvening, callback){
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'user/profile', {chronoMorning: chronoMorning, chronoEvening: chronoEvening})
                     .success(function(response){
                         //console.log(response);
@@ -253,7 +253,7 @@ myServices.factory('ProfileDataService',  ['$http', 'BASE_API_URL', 'GuestDataSe
         };
 
         service.setEmail = function(username, email, callback){
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'user/profile', {email: email})
                     .success(function(response){
                         //console.log(response);
@@ -463,7 +463,7 @@ myServices.factory('ChecklistService', ['$http', 'BASE_API_URL', 'GuestDataServi
         var asGuest = $rootScope.asGuest;
 
         service.getChecklist = function(username, callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.get(BASE_API_URL + 'data/checklist')
                     .success(function(response){
                         callback(response);
@@ -487,7 +487,7 @@ myServices.factory('ChecklistService', ['$http', 'BASE_API_URL', 'GuestDataServi
                 }
             });
 
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'data/checklist', submitData)
                     .success(function(response){
                         callback(response);
@@ -525,7 +525,7 @@ myServices.factory('ResetPasswordService', ['$http', 'BASE_API_URL', '$rootScope
     }
 ]);
 
-myServices.factory('DataPredictionService', ['$http', 'BASE_API_URL', 'localStorageService', '$rootScope', 'PREDICTION_STATISTIC',
+/*myServices.factory('DataPredictionService', ['$http', 'BASE_API_URL', 'localStorageService', '$rootScope', 'PREDICTION_STATISTIC',
     function($http, BASE_API_URL, localStorageService, $rootScope, PREDICTION_STATISTIC){
         var service = {};
         var storageKey = 'PredictionData';
@@ -579,7 +579,9 @@ myServices.factory('DataPredictionService', ['$http', 'BASE_API_URL', 'localStor
 
         return service;
     }
-]);
+]);*/
+
+
 
 myServices.factory('CaffeineService', ['$http', 'BASE_API_URL', '$rootScope',
     function($http, BASE_API_URL, $rootScope){
@@ -706,7 +708,7 @@ myServices.factory('MeqService', ['$http', 'BASE_API_URL', '$rootScope', 'localS
         var asGuest = $rootScope.asGuest;
 
         service.getData = function(callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.get(BASE_API_URL + 'data/meq')
                     .success(function(response){
                         callback(response);
@@ -722,7 +724,7 @@ myServices.factory('MeqService', ['$http', 'BASE_API_URL', '$rootScope', 'localS
         };
 
         service.setData = function(data, callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'data/meq', data)
                     .success(function(response){
                         callback(response);
@@ -748,7 +750,7 @@ myServices.factory('EssService', ['$http', 'BASE_API_URL', '$rootScope', 'localS
         var asGuest = $rootScope.asGuest;
 
         service.getData = function(callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.get(BASE_API_URL + 'data/ess')
                     .success(function(response){
                         callback(response);
@@ -764,7 +766,7 @@ myServices.factory('EssService', ['$http', 'BASE_API_URL', '$rootScope', 'localS
         };
 
         service.setData = function(data, callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'data/ess', data)
                     .success(function(response){
                         callback(response);
@@ -792,10 +794,11 @@ myServices.factory('MyChargeDataService', ['$http', 'BASE_API_URL', '$rootScope'
         var service = {};
         var asGuest = $rootScope.asGuest;
         var storageKey = 'MyChargeDataCalendar';
-        //var asGuest = true;
 
         service.getData = function(callback) {
-            if(!asGuest) {
+            console.log('get data');
+            console.log($rootScope.asGuest);
+            if(!$rootScope.asGuest) {
                 $http.get(BASE_API_URL + 'data/mycharge')
                     .success(function(response){
                         callback(response);
@@ -814,7 +817,7 @@ myServices.factory('MyChargeDataService', ['$http', 'BASE_API_URL', '$rootScope'
         };
 
         service.setData = function(data, callback) {
-            if(!asGuest) {
+            if(!$rootScope.asGuest) {
                 $http.put(BASE_API_URL + 'data/mycharge', data)
                     .success(function(response){
                         callback(response);
@@ -829,15 +832,50 @@ myServices.factory('MyChargeDataService', ['$http', 'BASE_API_URL', '$rootScope'
             }
         };
 
-        service.prepareSubmissionData = function(startDate, endDate, callback) {
-            var eventData = [];
+        return service;
+    }
+]);
 
-            service.getData(function(response){
-                console.log(response);
-                if(response.success == "true") {
-                    eventData = response.data;
+myServices.factory('DataPredictionService', ['$http', 'BASE_API_URL', 'localStorageService', '$rootScope',
+    'PREDICTION_STATISTIC', 'MyChargeDataService', '$q', 'moment',
+    'DEFAULT_PREDICTION_DAYS', 'DEFAULT_SLEEP_START', 'DEFAULT_SLEEP_END', 'DEFAULT_SLEEP_DURATION',
+    function($http, BASE_API_URL, localStorageService, $rootScope, PREDICTION_STATISTIC, MyChargeDataService, $q,
+    moment, DEFAULT_PREDICTION_DAYS, DEFAULT_SLEEP_START, DEFAULT_SLEEP_END, DEFAULT_SLEEP_DURATION){
+        var self = this;
+        var storageKey = 'MyChargeDataCalendar';
+
+        function getEventData() {
+            var deferred = $q.defer();
+
+            if(!$rootScope.asGuest) {
+                $http.get(BASE_API_URL + 'data/mycharge')
+                    .success(function(response){
+                        console.log(response);
+
+                        if(response.success == true || response.success == "true") {
+                            deferred.resolve(response);
+                        }
+                        else {
+                            deferred.reject("An error occurs: " + response.message);
+                        }
+                    })
+                    .error(function(data, status, headers, config){
+                        deferred.reject('Server connection error');
+                    });
+            }
+            else {
+                var localData = localStorageService.get(storageKey);
+                if(localData == null) {
+                    localData = [];
                 }
-            });
+                deferred.resolve({success: "true", data: localData});
+            }
+
+            return deferred.promise;
+        }
+
+        function prepareSubmissionData(eventData, startDate, endDate) {
+            var deferred = $q.defer();
 
             eventData.sort(function(a, b){
                 return a.tsStart - b.tsStart;
@@ -929,8 +967,8 @@ myServices.factory('MyChargeDataService', ['$http', 'BASE_API_URL', '$rootScope'
                     else {
                         var wakeTime = ((sleepData[cn].tsStart - sleepData[cn-1].tsEnd) + (sleepData[cn+1].tsStart - sleepData[cn].tsEnd))/milInHour;
                         /*console.log('no sleep');
-                        console.log((sleepData[cn].tsStart - sleepData[cn-1].tsEnd)/milInHour);
-                        console.log((sleepData[cn+1].tsStart - sleepData[cn].tsEnd)/milInHour);*/
+                         console.log((sleepData[cn].tsStart - sleepData[cn-1].tsEnd)/milInHour);
+                         console.log((sleepData[cn+1].tsStart - sleepData[cn].tsEnd)/milInHour);*/
                         sleepWakeSchedule.push(wakeTime);
 
                         //push sleep period
@@ -969,12 +1007,43 @@ myServices.factory('MyChargeDataService', ['$http', 'BASE_API_URL', '$rootScope'
                 timestamp: startDate
             };
 
-            console.log(outputData);
+           // console.log(outputData);
 
-            callback({success: true, data: outputData});
+            //callback({success: true, data: outputData});
+            deferred.resolve({success: true, data: outputData});
+            //console.log(deferred);
+            return deferred.promise;
 
         };
 
-        return service;
+        function getPredictionData(response, timestamp) {
+            var deferred = $q.defer();
+            response.data.statistic = PREDICTION_STATISTIC;
+            $http.put(BASE_API_URL + 'data/prediction',response.data)
+                .success(function(response){
+                    if(response.success == true || response.success == "true") {
+                        var r = {
+                            numDays: response.numDays,
+                            time: timestamp,
+                            data: response.message,
+                        };
+
+                        deferred.resolve(r);
+                    }
+                    else {
+                        deferred.reject("An error occurs: " + response.message);
+                    }
+                })
+                .error(function(data, status, headers, config){
+                    deferred.reject('Server connection error');
+                });
+            return deferred.promise;
+        }
+
+        return {
+            getEventData: getEventData,
+            prepareSubmissionData: prepareSubmissionData,
+            getPredictionData: getPredictionData
+        }
     }
 ]);
