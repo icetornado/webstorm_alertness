@@ -276,51 +276,6 @@ atoAlertnessChartModule.directive('alertnessChart', ['moment', function(){
         $scope.requestData = {};
         $scope.lastTimeStamp = 0;
 
-        $scope.getMyChargeData = function(){
-            MyChargeDataService.prepareSubmissionData($scope.startDate, $scope.actualEndDate, function(d){
-                console.log(d);
-
-                if(d.data != null) {
-                    if(d.data.data.sleepWakeSchedule.length > 0){
-                        $scope.requestData = d.data.data;
-                        $scope.lastTimeStamp = d.data.timestamp;
-                    }
-                }
-            })
-        };
-
-        $scope.getMyChargeData();
-
-        $scope.showSpinner = true;
-
-        $scope.GetPredictionData = function() {
-            DataPredictionService.getData($scope.requestData, $rootScope.renewPrediction, $scope.lastTimeStamp,
-                function(response){
-                    console.log(response);
-                    if(response.success == true || response.success == "true") {
-                        $scope.showSpinner = false;
-                        $rootScope.renewPrediction = false; // turn off the renew prediction request from MyCharge inputs
-
-                        $scope.chartData = $scope.transformData(response);
-                    }
-                    else {
-                        $scope.error = response.message;
-                        $scope.showSpinner = false;
-                    }
-                }
-            );
-        };
-
-        $scope.GetPredictionData();
-
-        $scope.applyStartDate = function(){
-            $scope.startDate = moment($scope.endDate).subtract(DEFAULT_PREDICTION_DAYS, 'days').toDate();
-            $scope.actualEndDate = moment($scope.endDate).add(2, 'days').toDate();
-            $rootScope.DataPredictiondate = $scope.endDate;
-            $scope.getMyChargeData();
-            $scope.GetPredictionData();
-        };
-
         $scope.openModal = function(){
             var modalInstance = $uibModal.open({
                 windowTemplateUrl: './templates/modal/window.html',
@@ -343,6 +298,54 @@ atoAlertnessChartModule.directive('alertnessChart', ['moment', function(){
                     //console.log('dismiss');
                 }
             );
+        };
+
+        $scope.showSpinner = true;
+
+        function GetPredictionData() {
+            var promise = DataPredictionService.getEventData()
+                .then(
+                    function(response){
+                        DataPredictionService.prepareSubmissionData(response.data, $scope.startDate, $scope.actualEndDate)
+                            .then(
+                                function(response){
+                                    if(response.data.data.sleepWakeSchedule.length > 0){
+                                        $scope.requestData = response.data.data;
+                                        $scope.lastTimeStamp = response.data.timestamp;
+
+                                        DataPredictionService.getPredictionData(response.data, $scope.lastTimeStamp)
+                                            .then(
+                                                function(response){
+                                                    console.log(response);
+                                                    $scope.showSpinner = false;
+                                                    $scope.chartData = $scope.transformData(response);
+                                                },
+                                                function(error){
+
+                                                }
+                                            );
+                                    }
+                                },
+                                function(error){
+
+                                }
+                            );
+                    },
+                    function(error){
+
+                    })
+                ;
+        }
+
+        GetPredictionData();
+
+        //event handler for applying new end date
+        $scope.applyStartDate = function(){
+            $scope.startDate = moment($scope.endDate).subtract(DEFAULT_PREDICTION_DAYS, 'days').toDate();
+            $scope.actualEndDate = moment($scope.endDate).add(2, 'days').toDate();
+            $rootScope.DataPredictiondate = $scope.endDate;
+
+            GetPredictionData();
         };
     }
 ]);

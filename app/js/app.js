@@ -156,6 +156,11 @@ myApp.run(['$rootScope', '$location', '$window', '$cookieStore', '$http', 'Token
         $rootScope.csrfToken = $cookieStore.get('X-CSRF-TOKEN');
         $rootScope.location = $location.path();
         $rootScope.asGuest = $cookieStore.get("asGuestCookies");
+
+        if(angular.isUndefined($rootScope.asGuest)) {
+            $rootScope.asGuest = false;
+        }
+
         $rootScope.DataPredictiondate = 0;
 
         /*

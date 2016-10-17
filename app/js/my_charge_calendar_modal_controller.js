@@ -165,10 +165,12 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                     sleepObj.cssClass= (sleepObj.startsAt.getTime() != sleepObj.endsAt.getTime()) ? 'has-sleep' : 'zero-sleep';;
                     $scope.vm.events.push(sleepObj);
                     $scope.eventsChangedState = true;
+                    $uibModalInstance.close("Event Closed");
                 }
-
-                $uibModalInstance.close("Event Closed");
-
+                else {
+                    //display message somewhere
+                    $scope.errorMessage = validation.message;
+                }
             }
             else if(calEvent.dataType == 'sleep') {
                 var validation = $scope.validateSleep(calEvent);
@@ -284,40 +286,66 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
 
                 //get an array of sleep events within time range of the caffeine event occurs only
                 var sleepEvents = [];
+                //console.log($scope.vm.events);
                 for(var i = 0; i < $scope.vm.events.length; i++) {
-                    if($scope.vm.events[i].dataType == 'sleep'
+                    if($scope.vm.events[i].dataType == 'sleep' && $scope.vm.events[i].cssClass != 'fake-event-class'
                         && (($scope.vm.events[i].startsAt.getTime() <= zeroHour && $scope.vm.events[i].endsAt.getTime() >= zeroHour)
-                        || ($scope.vm.events[i].startsAt.getTime() <= endOfDay && $scope.vm.events[i].endsAt.getTime() >= endOfDay))) {
+                        || ($scope.vm.events[i].startsAt.getTime() <= endOfDay && $scope.vm.events[i].endsAt.getTime() >= endOfDay)
+                        || ($scope.vm.events[i].startsAt.getTime() >= zeroHour && $scope.vm.events[i].endsAt.getTime() <= endOfDay))) {
                         sleepEvents.push($scope.vm.events[i]);
                     }
                 }
 
                 //console.log(sleepEvents);
-
+                var ignoreStartDefault = false;
+                var ignoreEndDefault = false;
                 //if it is no sleep event within the time range, validate the caffeine against the default sleep time
                 if(sleepEvents.length == 0) {
                     if((cEvent.startsAt.getTime() > lastDaySleepStart && cEvent.startsAt.getTime() < lastDaySleepEnd)
                     || (cEvent.startsAt.getTime() > startSleepHour && cEvent.startsAt.getTime() < endOfDay)){
-                        output.message = " Conflict with an existing default sleep event";
+                        output.message = " Conflict with an existing default sleep event 1";
                         output.ok = false;
                     }
                 }
                 else {
                     for(var j = 0; j < sleepEvents.length; j++) {
-                        if(cEvent.startsAt.getTime() > sleepEvents[j].startsAt.getTime() && cEvent.startsAt.getTime() < sleepEvents[j].endsAt.getTime()) {
-                            output.message = "Conflict with an existing sleep event";
-                            output.ok = false;
-                            break;
+                        if(sleepEvents[j].startsAt.getTime() == sleepEvents[j].endsAt.getTime()) {
+                            if(cEvent.startsAt.getTime() == startSleepHour) {
+                                ignoreStartDefault = true;
+                            }
+                            else if(cEvent.startsAt.getTime() == lastDaySleepEnd) {
+                                ignoreEndDefault = true;
+                            }
+                        }
+                        else {
+                            if(cEvent.startsAt.getTime() > sleepEvents[j].startsAt.getTime() && cEvent.startsAt.getTime() < sleepEvents[j].endsAt.getTime()) {
+                                output.message = "Conflict with an existing sleep event";
+                                output.ok = false;
+                                break;
+                            }
                         }
                     }
 
-                    //run another checking with previous day sleep event
+                    //run another checking with previous day default sleep event
                     if(output.ok) {
-                        if((cEvent.startsAt.getTime() > zeroHour && cEvent.startsAt.getTime() < lastDaySleepEnd)
-                            || (cEvent.startsAt.getTime() > startSleepHour && cEvent.startsAt.getTime() < endOfDay)){
-                            output.message = " Conflict with an existing default sleep event";
-                            output.ok = false;
+                        if(!ignoreEndDefault) {
+                            if(cEvent.startsAt.getTime() > zeroHour && cEvent.startsAt.getTime() < lastDaySleepEnd) {
+                                output.message = " Conflict with an existing default sleep event ending";
+                                output.ok = false;
+                            }
                         }
+                        else if(!ignoreStartDefault) {
+                            if(cEvent.startsAt.getTime() > startSleepHour && cEvent.startsAt.getTime() < endOfDay) {
+                                output.message = " Conflict with an existing default sleep event starting";
+                                output.ok = false;
+                            }
+                        }
+
+                        /*if((cEvent.startsAt.getTime() > zeroHour && cEvent.startsAt.getTime() < lastDaySleepEnd)
+                            || (cEvent.startsAt.getTime() > startSleepHour && cEvent.startsAt.getTime() < endOfDay)){
+                            output.message = " Conflict with an existing default sleep event 2";
+                            output.ok = false;
+                        }*/
                     }
                 }
 
@@ -349,7 +377,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
             for(var i = 0; i < $scope.vm.events.length; i++) {
                 var sleepEvt = $scope.vm.events[i];
                 if(sleepEvt.$id != cEvent.$id) {
-                    if((cEvent.startAt >= sleepEvt.startsAt && cEvent.startsAt <= sleepEvt.endsAt)
+                    if((cEvent.startsAt >= sleepEvt.startsAt && cEvent.startsAt <= sleepEvt.endsAt)
                     || (cEvent.endsAt >= sleepEvt.startsAt && cEvent.endsAt <= sleepEvt.endsAt)) {
                         output.message = "Conflict with an existing sleep event";
                         output.ok = false;
@@ -370,6 +398,9 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                     }
                 }
             }
+
+            //('valid output');
+            //console.log(output);
             return output;
         }
 
