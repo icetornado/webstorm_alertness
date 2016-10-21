@@ -46,24 +46,24 @@
                     <button class="btn btn-default btn btn-primary" ng-click="vm.reset()" style="max-width:none;margin-top:5px;">Reset</button>
       </div>
     </div>
-    <!-- sleep modal -->
+       <!-- sleep modal -->
     <script type="text/ng-template" id="sleepModal.html">
-        <form name="sleepForm" ng-submit="ok()" novalidate>
+        <form name="sleepForm" ng-submit="ok(sleepForm)" novalidate="novalidate">
             <div class="modal-header">
                 <h3 class="modal-title">{{modalTitle}}</h3>
             </div>
             <div class="modal-body">
                 <div class="modal-message alert alert-danger" ng-if="errorMessage">{{errorMessage}}</div>
                 <div class="mycharge-start-header" style="margin-top:10px; color:#FFFAA7!important;">Start Time</div>
-                <div class="form-group">
+                <div class="form-group" >
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2"  style="padding:0; background:none; border:none;">
                             <span class="glyphicon glyphicon-calendar cal-fix mobile-cal-fix" style="padding:5px; background-color:#FFF; float:left; top:0!important; padding-right:85%; left:inherit!important;border-bottom-left-radius: 4px; border-top-left-radius: 4px;" ng-click="toggle($event, 'startOpen')"></span>
 
-                        <input type="text" class="form-control mobile-input-fix" uib-datepicker-popup="dd MMMM yyyy"  ng-model="calEvent.startsAt" is-open="startOpen" close-text="Close" style="pointer-events:none; position:absolute; left:35px;" >
+                        <input type="text" name="calendar" class="form-control mobile-input-fix" uib-datepicker-popup="dd MMMM yyyy"  ng-model="calEvent.startsAt" is-open="startOpen" close-text="Close" style="pointer-events:none; position:absolute; left:35px;" >
                         </span>
                     </div>
-                    <div uib-timepicker ng-model="calEvent.startsAt" hour-step="1" minute-step="15" show-meridian="false"></div>
+                    <div name="timepicker" uib-timepicker ng-model="calEvent.startsAt" hour-step="1" minute-step="15" show-meridian="false"></div>
                 </div>
                 <!--
                 <div class="mycharge-start-header" style="color:#FFFAA7!important;">Select End Date/Time</div>
@@ -79,7 +79,7 @@
                 -->
                 <div class="mycharge-start-header" style="color:#FFFAA7!important;">Select Sleep Duration</div>
                 <div class="row">
-                    <select class="form-control" ng-options="duration.txt for duration in sleepDurations track by duration.ts" ng-model="durationSelected"></select>
+                    <select name="duration"  class="form-control" ng-options="duration.txt for duration in sleepDurations track by duration.ts" ng-model="durationSelected"></select>
                 </div>
             </div>
             <div class="modal-footer">
@@ -87,12 +87,15 @@
                 <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
             </div>
         </form>
-    </script>
+         <!-- <pre>{{sleepForm | json }} </pre> -->
+        </script>
+        
+       
     <!-- end of sleep modal -->
 
     <!-- caffeine modal -->
     <script type="text/ng-template" id="caffeineModal.html">
-        <form name="caffeineForm" ng-submit="ok()" novalidate>
+        <form name="caffeineForm" ng-submit="ok(caffeineForm)" novalidate="novalidate">
             <div class="modal-header">
                 <h3 class="modal-title">{{modalTitle}}</h3>
             </div>
@@ -101,15 +104,15 @@
                 <div class="mycharge-day-input">
                     <div class="form-group">
                         <label style="margin-bottom:5px;">Caffeine Source:</label>
-                        <select class="form-control" ng-options="type as type.itemName for type in caffeineItems track by type.id" ng-model="caffeineSelected"></select>
+                        <select name="caffiene-source" class="form-control" ng-options="type as type.itemName for type in caffeineItems track by type.id" ng-model="caffeineSelected"></select>
                     </div>
                     <div class="form-group">
                         <label style="margin-bottom:5px;margin-top:15px;">Quantity:</label>
-                        <select class="form-control" ng-options="k for k in quantity" ng-model="quantitySelected"></select>
+                        <select  name="caffiene-quantity" class="form-control" ng-options="k for k in quantity" ng-model="quantitySelected"></select>
                     </div>
                     <div class="form-group">
                         <label style="margin-bottom:5px;margin-top:15px;">Time:</label>
-                        <div uib-timepicker ng-model="calEvent.startsAt" hour-step="1" minute-step="15" show-meridian="false"></div>
+                        <div name="timepicker" uib-timepicker ng-model="calEvent.startsAt" hour-step="1" minute-step="15" show-meridian="false"></div>
                     </div>
                 </div>
             </div>
@@ -118,7 +121,6 @@
                 <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
             </div>
         </form>
-
     </script>
     <!-- end of caffeine modal -->
 
