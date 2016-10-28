@@ -406,4 +406,3 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         };
     }
 ]);
-
