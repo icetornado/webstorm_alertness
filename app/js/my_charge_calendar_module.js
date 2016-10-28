@@ -174,9 +174,12 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
 
             for(var i = 0; i < vm.events.length; i++) {
                 if(vm.events[i].dataType == 'sleep') {
+                    /*
                     if((vm.events[i].endsAt.getTime() > startSleepHour && vm.events[i].endsAt.getTime() < nextDaySleepEnd)
                         || (vm.events[i].startsAt.getTime() < nextDaySleepEnd && vm.events[i].endsAt.getTime() > nextDaySleepEnd)) {
-
+                    */
+                    if((moment(vm.events[i].endsAt).toDate().getTime() > startSleepHour && moment(vm.events[i].endsAt).toDate().getTime() < nextDaySleepEnd)
+                        || (moment(vm.events[i].startsAt).toDate().getTime() < nextDaySleepEnd && moment(vm.events[i].endsAt).toDate().getTime() > nextDaySleepEnd)) {
                         ok = false;
                         break;
                     }
@@ -403,3 +406,4 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         };
     }
 ]);
+
