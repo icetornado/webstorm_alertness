@@ -1,9 +1,7 @@
 /**
  * Created by trieutran on 8/23/16.
  */
-/**
- * Created by trieutran on 7/1/16.
- */
+
 atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope', '$uibModalInstance', 'calEvent', 'action',
     'eventType', 'events', 'calendarConfig', 'actionButtons', 'CaffeineService', 'MyChargeDataService', 'DEFAULT_SLEEP_END',
     'DEFAULT_SLEEP_START', 'DEFAULT_SLEEP_DURATION', 
@@ -18,6 +16,9 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         $scope.editMode = false;
         $scope.errorMessage = null;
         $scope.quantitySelected = 0;
+        $scope.isEven = function (n) {
+            return n % 2 == 0;
+        }
        
       
         //SleepCalendar
@@ -67,7 +68,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         var durationObj = makeSleepDuration(calEvent.endsAt - calEvent.startsAt);
         $scope.sleepDurations = durationObj.durations;
         $scope.durationSelected = durationObj.selected;
-
+    
         switch (action) {
             case 'Edit-Sleep':
                 $scope.modalTitle = 'Edit Sleep';
@@ -111,6 +112,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                 break;
 
             case 'Add-Sleep':
+                
                 $scope.modalTitle = 'Add Sleep';
                 calEvent.dataType = 'sleep';
               
@@ -215,23 +217,14 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         $scope.cancel = function () {
           
             if(eventType == 'sleep') {
-           // console.log(moment(initialDuration).toDate());
-              //console.log(moment($scope.oldEndsAt).toDate());
-               //console.log(moment(calEvent.endsAt).toDate());
-               //console.log(moment(initialDurationReset).toDate());
+           
                 calEvent.startsAt = initialCalendar;
                calEvent.endsAt = initialDuration;
                initialDurationReset = {};
                 initialDuration = {};
-                            //initialDuration = $scope.durationSelected;
-                            //initialCalendar = calEvent.startsAt;
-                //calEvent.endsAt = $scope.oldEndsAt;
-               // calEvent.startsAt = calEvent.startsAt;
-               // calEvent.endsAt =  $scope.oldEndsAt;
-              // console.log(moment(initialDuration).toDate());
-              // console.log(moment($scope.oldEndsAt).toDate());
-               //console.log(moment(calEvent.endsAt).toDate());
-               //console.log(moment(initialDurationReset).toDate());
+                
+                
+              
             }
             else if(eventType == 'caffeine') {
                 //calEvent.startsAt = $scope.oldStartsAt;
@@ -353,11 +346,15 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                         $scope.updateEvent();
                     }
                     else {
-                         console.log('Failed Validation');
-                        
-                        //display message somewhere
-                        $scope.errorMessage = validation.message;
-                         $scope.resetForm('sleepForm');
+                         if($scope.editMode) { 
+                            console.log('Failed Validation');
+                            $scope.errorMessage = validation.message;
+                            $scope.resetForm('sleepForm-edit');
+                         } else {
+                            console.log('Failed Validation');
+                            $scope.errorMessage = validation.message;
+                            $scope.resetForm('sleepForm');
+                         }
                     }
             
                 break;
@@ -653,7 +650,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                     if(($scope.between(userInputStartTime, startSleepHour, nextDaySleepEnd )) ||
                                         ($scope.between(userInputEndTime, startSleepHour, nextDaySleepEnd ))){
                                             output.ok = false;
-                                            output.message = "Conflict With Today's Default Sleep Time  wert";
+                                            output.message = "Conflict With Today's Default Sleep Time";
                                     }
                                         
                             }
@@ -918,7 +915,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                              if (output.ok) {
                                 if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime()))){
                                         output.ok = false;
-                                        output.message = "Conflict With existing Sleep Time 1";
+                                        output.message = "Conflict With existing Sleep Time 555";
                                 }
                             }
                         } 
@@ -928,7 +925,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                         ($scope.between(allSleepInLocalstorageInRange[i+1], userInputStartTime, userInputEndTime)) ){
                                             output.ok = false;
                                             // console.log("Conflict With existing Sleep Time");
-                                            output.message = "Conflict With existing Sleep Time sfsdf";
+                                            output.message = "Conflict With existing Sleep Time 6666";
                             }
                         }
                     }
@@ -971,10 +968,21 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                         }
 
                                         if (output.ok) {
-                                            if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime()))){
+                                            if($scope.isEven(moment(initialCalendar).toDate().getTime())){
+                                                if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() + 1 ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime() + 1))){
                                                     output.ok = false;
-                                                    output.message = "Conflict With existing Sleep Time 2345245";
+                                                    output.message = "Conflict With existing Sleep Time";
+        
+                                                }
+                                            } else {
+                                                if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime()))){
+                                                    output.ok = false;
+                                                    output.message = "Conflict With existing Sleep Time";
+        
+                                                }
+
                                             }
+                                            
                                             //console.log(moment(allSleepInLocalstorageInRange[i]).toDate().getTime());
                                             //console.log(moment(initialCalendar).toDate().getTime());
                                             //console.log(moment(allSleepInLocalstorageInRange[i+1]).toDate().getTime());
@@ -985,12 +993,21 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                     if (output.ok) {
                                         if(($scope.between(allSleepInLocalstorageInRange[i], userInputStartTime, userInputEndTime)) &&
                                                     ($scope.between(allSleepInLocalstorageInRange[i+1], userInputStartTime, userInputEndTime)) ){
-                                                        if ((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime())){
-                                                               
-                                                        } else {
-                                                            output.ok = false;
-                                                            output.message = "Conflict With existing Sleep Time 23425";
-                                                        }
+
+                                                if($scope.isEven(moment(initialCalendar).toDate().getTime())){
+                                                    if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() + 1 ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime() + 1))){
+                                                        output.ok = false;
+                                                        output.message = "Conflict With existing Sleep Time";
+            
+                                                    }
+                                                } else {
+                                                    if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime()))){
+                                                        output.ok = false;
+                                                        output.message = "Conflict With existing Sleep Time";
+            
+                                                    }
+
+                                            }
                                         }
                                     }
                                 
@@ -1002,7 +1019,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                 if(($scope.between(userInputStartTime, yesterdaysSleepTime, lastDaySleepEnd )) ||
                                     ($scope.between(userInputEndTime, yesterdaysSleepTime, lastDaySleepEnd ))){
                                         output.ok = false;
-                                        output.message = "Conflict With Yesterday's Default Sleep Time 235234532";
+                                        output.message = "Conflict With Yesterday's Default Sleep Time";
                                 }
                                                 
                             } 
@@ -1010,7 +1027,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                 if(($scope.between(userInputStartTime, startSleepHour, nextDaySleepEnd )) ||
                                     ($scope.between(userInputEndTime, startSleepHour, nextDaySleepEnd ))){
                                     output.ok = false;
-                                    output.message = "Conflict With Today's Default Sleep Time 23";
+                                    output.message = "Conflict With Today's Default Sleep Time";
                                 }
                                             
                             } 
@@ -1041,7 +1058,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                     if(($scope.between(userInputStartTime, startSleepHour, nextDaySleepEnd )) ||
                                         ($scope.between(userInputEndTime, startSleepHour, nextDaySleepEnd ))){
                                             output.ok = false;
-                                            output.message = "Conflict With Today's Default Sleep Time  wert";
+                                            output.message = "Conflict With Today's Default Sleep Time";
                                     }
                                         
                             }
@@ -1100,6 +1117,14 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         $scope.resetForm = function (StrformName) {
              switch (StrformName) {
                 case 'sleepForm':
+                    //$scope.sleepForm.$setPristine();
+                    calEvent.startsAt = moment(initialCalendar).startOf('day').add(initialHour, 'hours').toDate();
+                    $scope.durationSelected = $scope.durationSelected;
+                    //$scope.sleepForm.$setPristine();
+                   // 
+                   // initialDurationReset = {};
+                    break;
+                case 'sleepForm-edit':
                     //$scope.sleepForm.$setPristine();
                     calEvent.startsAt = moment(initialCalendar).startOf('day').add(initialHour, 'hours').toDate();
                     $scope.durationSelected = initialDurationReset;
@@ -1298,16 +1323,14 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                             //console.log('true ' + userInputStartTime + ' is in between ' + allSleepInLocalstorageInRange[i] + ' & ' + allSleepInLocalstorageInRange[i+1]);
                             //console.log('true ' + userInputEndTime + ' is in between ' + allSleepInLocalstorageInRange[i] + ' & ' + allSleepInLocalstorageInRange[i+1]);
                             if(defaultSevenAmExist){
-                                    if(($scope.between(userInputStartTime, yesterdaysSleepTime, lastDaySleepEnd )) ||
-                                            ($scope.between(userInputEndTime, yesterdaysSleepTime, lastDaySleepEnd ))){
+                                    if($scope.between(userInputStartTime, yesterdaysSleepTime, lastDaySleepEnd )) {
                                                 output.ok = false;
                                                 output.message = "Conflict With Yesterday's Default Sleep Time";
                                         }
                                     
                             } 
                             if (defaultElevenPmExist) { 
-                                        if(($scope.between(userInputStartTime, startSleepHour, nextDaySleepEnd )) ||
-                                            ($scope.between(userInputEndTime, startSleepHour, nextDaySleepEnd ))){
+                                        if($scope.between(userInputStartTime, startSleepHour, nextDaySleepEnd )) {
                                                 output.ok = false;
                                                 output.message = "Conflict With Today's Default Sleep Time";
                                         }
