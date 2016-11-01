@@ -101,33 +101,22 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
             {
                 label: '<div class=\'btn btn-primary\'>+ Sleep</div>',
                 onClick: function(args) {
-                    /* Used for fixing bugs caused by Adding Default Sleep */
+                        /*  Used for fixing bugs caused by Adding Default Sleep */
                         if ($scope.defaultElevenPmExist){ 
-                            vm.events.forEach(function(entry, i){
-                                var numLastEventStored = vm.events.length - 1;
-                                var arrPosition = i - 1;
-                                    if ((arrPosition == numLastEventStored) ||  (i == numLastEventStored)) {
-                                        try {
-                                            switch(vm.events[i].dataType) {
-                                            
-                                            case 'caffeine':
-                                                        vm.events.splice(-2,1);
-                                                break;
-                                            default:
-                                                        vm.events.splice(-1,1);
-                                                        $scope.sliceCount++;
-                                                       
-                                                break;
-                                            }
-                                        }
-                                        catch(err) {
-                                            console.log(err);
-                                        }                
+                             var eventDatatype = vm.events[vm.events.length - 1];
+                            switch(eventDatatype.dataType) {   
+                                    //console.log(strEventDatatype);     
+                                case "caffeine":
+                                    console.log('splice');
+                                            vm.events.splice(-2,1);
+                                break;
+                                default:
+                                        vm.events.splice(-1,1);
+                                        $scope.sliceCount++;
                                         
-                                    }
-                            }); 
-
-                        }
+                                break;
+                            } 
+                        } 
                        
                     /* End Used for fixing bugs caused by Adding Default Sleep */
                     showModal('Add-Sleep', args.calendarEvent);
