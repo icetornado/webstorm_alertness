@@ -27,10 +27,14 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         vm.viewDate = new Date();
         vm.isCellOpen = false;
         vm.eventsChangedState = false;
+        $scope.between = function (x, min, max) {
+            return x >= min && x <= max;
+        }
 
         /* Used for fixing bugs caused by Adding Default Sleep */
         $scope.day = {};
         $scope.sliceCount = 0;
+        $scope.caffeineClickCount = 0;
         $scope.todaysDateSleeptime = 0;
         $scope.defaultElevenPmExist = true;
         $scope.isTodaysDateDeleted = function(intTodaysDateSleeptime, arrOfSleepTime){ 
@@ -96,26 +100,77 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                 }
             }
         ];
-
+        $scope.sliceCaffieneCount = 0;
+        $scope.sliceCaffiene = function(){
+            vm.events.splice(-2,1);
+            $scope.sliceCaffieneCount++;
+        }
         var addActions = [
             {
                 label: '<div class=\'btn btn-primary\'>+ Sleep</div>',
                 onClick: function(args) {
                         /*  Used for fixing bugs caused by Adding Default Sleep */
+
                         if ($scope.defaultElevenPmExist){ 
-                             var eventDatatype = vm.events[vm.events.length - 1];
-                            switch(eventDatatype.dataType) {   
-                                    //console.log(strEventDatatype);     
-                                case "caffeine":
-                                    console.log('splice');
-                                            vm.events.splice(-2,1);
-                                break;
-                                default:
-                                        vm.events.splice(-1,1);
-                                        $scope.sliceCount++;
-                                        
-                                break;
-                            } 
+
+                            try {
+                                var eventDatatypeLast = vm.events[vm.events.length - 1].dataType;
+                                var eventDatatypeSecondLast = vm.events[vm.events.length - 2].dataType;
+                                var eventDatatypeLastTime = moment(vm.events[vm.events.length - 1].startsAt).toDate().getTime();
+                                var eventDatatypeSecondLastTime = moment(vm.events[vm.events.length - 2].startsAt).toDate().getTime();
+                                var startTimeOfDay = moment($scope.day).toDate().getTime();
+                                var endTimeOfDay = moment(moment($scope.day).toDate().getTime() + (3600000 * 24)).toDate().getTime();
+                                var startSleepHour = moment(moment($scope.day).toDate().getTime() + (3600000 * 23)).toDate().getTime();
+                                var nextDaySleepEnd = moment(moment($scope.day).toDate().getTime() + (3600000 * 31)).toDate().getTime();
+                                
+                            }
+                            catch(err) {
+                                console.log(err);
+                            }
+
+                           console.log(vm.events[vm.events.length - 1].cssClass);
+                           
+                           var classOfLastObjectFromEvents = vm.events[vm.events.length - 1].cssClass;
+                           if (classOfLastObjectFromEvents !== undefined ) { 
+                               vm.events.splice(-1,1);
+                               console.log('splice');
+                           } else {
+                               //caffiene
+                                
+                               vm.events.push(
+                                {
+                                    title: '',
+                                    color: calendarConfig.colorTypes.alert,
+                                    startsAt: moment($scope.day).add(1, 'days').subtract(1, 'milliseconds').toDate(),
+                                    draggable: false,
+                                    resizable: false,
+                                    incrementsBadgeTotal: false,
+                                    allDay: true,
+                                    actions: addActions,
+                                    cssClass: 'fake-event-class'
+                                });
+
+                                  vm.events.push(
+                                    {
+                                        title: 'Default Sleep',
+                                        color: calendarConfig.colorTypes.success,
+                                        startsAt: moment(startSleepHour + 1).toDate(),
+                                        endsAt: moment(nextDaySleepEnd + 1).toDate(),
+                                        draggable: false,
+                                        resizable: false,
+                                        incrementsBadgeTotal: false,
+                                        allDay: true,
+                                        actions: sleepDefaultActions,
+                                        dataType: 'defaultSleep',
+                                        cssClass: 'default-sleep'
+                                    }
+                                );
+
+                                vm.events.splice(-1,1);
+                                
+                               
+                           }
+                           
                         } 
                        
                     /* End Used for fixing bugs caused by Adding Default Sleep */
@@ -125,7 +180,22 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
             {
                 label: '<div class=\'btn btn-primary\'>+ Caffeine</div>',
                 onClick: function(args) {
+                   // console.log(vm.events);
+
                     showModal('Add-Coffee', args.calendarEvent);
+                    vm.events.push(
+                    {
+                        title: '',
+                        color: calendarConfig.colorTypes.alert,
+                        startsAt: moment($scope.day).add(1, 'days').subtract(1, 'milliseconds').toDate(),
+                        draggable: false,
+                        resizable: false,
+                        incrementsBadgeTotal: false,
+                        allDay: true,
+                        actions: addActions,
+                        cssClass: 'fake-event-class'
+                    }
+                );
                 }
             }
         ];
@@ -254,12 +324,14 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
 
         //
         vm.myOnTimespanClick = function(day){
-
+            console.log('vm.myOnTimespanClick');
            /* Used for fixing bugs caused by Adding Default Sleep */
            $scope.day = day;
            $scope.todaysDateSleeptime = moment($scope.day).toDate().getTime() + (3600000 * 23) + 1;
            $scope.isTodaysDateDeleted($scope.todaysDateSleeptime, vm.events);
            $scope.sliceCount = 0;
+           $scope.caffeineClickCount = 0;
+           $scope.sliceCaffieneCount = 0;
            /* End Used for fixing bugs caused by Adding Default Sleep */
 
             if(!vm.isCellOpen) {
@@ -281,7 +353,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         }
 
         vm.toggleFakeEvent = function(day, act) {
-
+            console.log('vm.toggleFakeEvent');
             if(act == 'add'){
                 
                 vm.events.push(
@@ -302,6 +374,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
             }
             else if(act == 'remove'){  //remove the fake event
                vm.events.splice(vm.fakeEventID, 1);
+
             }
             
         }
@@ -379,9 +452,12 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                             vm.message = msg;
                             /* Used for fixing bugs caused by Adding Default Sleep */
                             vm.toggleFakeEvent($scope.day, 'add');
+                            
                         }, function(){
                             /* Used for fixing bugs caused by Adding Default Sleep */
                            vm.toggleFakeEvent($scope.day, 'add');
+                           //vm.events.splice(-1,1);
+                          
                         }
                     );
             } else {
@@ -462,6 +538,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         }
 
         vm.reset= function() {
+             
             if(window.confirm('Are you sure you want to reset all data to default?')) {
                 vm.events = [];
                 MyChargeDataService.setData([], function(response){
@@ -470,7 +547,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                     }
                 });
             }
-
+            vm.toggleFakeEvent($scope.day, 'add');
         };
     }
 ]);
