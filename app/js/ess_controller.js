@@ -1,8 +1,8 @@
 /**
  * Created by trieutran on 7/1/16.
  */
-atoAlertnessControllers.controller('EssController', ['$document', '$window', '$scope', '$location', 'EssService',
-    function($document, $window, $scope, $location, EssService) {
+atoAlertnessControllers.controller('EssController', ['$window', '$scope', '$location', 'EssService',
+    function($window, $scope, $location, EssService) {
         $scope.data = {};
         $scope.message = "";
         $scope.showForm = true;
@@ -14,10 +14,9 @@ atoAlertnessControllers.controller('EssController', ['$document', '$window', '$s
         }
 
         EssService.getData(function(response){
-            console.log(response);
-            if(response.success == "true") {
+            if(response.success == true) {
                 angular.forEach(response.data, function(v, k){
-                    $scope.data[k] = parseInt(v);
+                    $scope.data[k] = v;
                 });
             }
         });
@@ -38,9 +37,8 @@ atoAlertnessControllers.controller('EssController', ['$document', '$window', '$s
         $scope.essSubmit = function(){
             var isValid = true;
             //validation
-            for(var i = 1; i < 8; i++) {
-                console.log($scope.data["ess_" + i]);
-                if($scope.data["ess_" + i] == null) {
+            for(var i = 1; i < 9; i++) {
+                if(!$scope.data["ess_" + i]) {
                     isValid = false;
                     $scope.message = "You did not answer one or more ESS questions.  Please go back and answer ALL 8 questions before scoring your ESS";
                     break;
@@ -59,11 +57,5 @@ atoAlertnessControllers.controller('EssController', ['$document', '$window', '$s
             }
 
         };
-
-        $scope.$watch('showForm', function(value){
-            if(value == false) {
-                $document[0].body.scrollTop = $document[0].documentElement.scrollTop = 0;
-            }
-        });
     }
 ]);
