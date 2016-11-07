@@ -1,5 +1,5 @@
 <div class="cal-slide-box" uib-collapse="vm.isCollapsed" mwl-collapse-fallback="vm.isCollapsed">
-    <div class="cal-slide-content cal-event-list">
+    <div class="cal-slide-content cal-event-list" ng-controller="MyChargeCalendarAddActionController">
         <ul class="unstyled list-unstyled">
 
             <li
@@ -23,9 +23,9 @@
             </li>
 
         </ul>
+        <div class="add-buttons">
+            <button class="btn btn-primary" ng-click="addSleep()"  type="button">+ Sleep</button>
+            <button class="btn btn-primary"  ng-click="addCaffeine()"  type="button">+ Caffeine</button>
+        <div>
     </div>
-
 </div>
-<!--
-
--->

@@ -360,7 +360,6 @@ span.glyphicon.glyphicon-chevron-right {
 .btn-primary {
     max-width: 90%;
     margin: 0 auto;
-    margin-top: 10px;
     margin-bottom: 5px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 5px;
@@ -1115,7 +1114,6 @@ li>span.pull-left.event {
 }
 .cal-slide-content ul.unstyled {
     position: relative;
-    padding-bottom: 50px;
 }
 div.cal-slide-content.cal-event-list>ul>li {
     margin-top: 5px;
@@ -1372,4 +1370,9 @@ div.modal-content > form > div.modal-header {
 .events-list {
   right: 2px!important;
       left: inherit!important;
+}
+.add-buttons {
+    margin: 0 auto;
+    padding: 5px 0;
+    max-width: 175px;
 }

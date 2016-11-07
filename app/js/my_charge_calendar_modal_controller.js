@@ -18,7 +18,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
         $scope.isEven = function (n) {
             return n % 2 == 0;
         }
-       
+     
       
         //SleepCalendar
         var initialCalendar = {};
@@ -466,6 +466,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
             var defaultTempTomorrowSleepTime = true;
             var yesterdaysSleepTime = zeroHour - 3600000;
             var tomorrowMidnight = zeroHour + (3600000 * 48) - 1;
+            var tomorrowMidnightUntillNext = zeroHour + (3600000 * 72);
             var tomorrowSleepTime = nextDaySleepEnd + (3600000 * 16);
             var userInputStartTime = cEvent.startsAt.getTime() + 1;
             var userInputEndTime = cEvent.endsAt.getTime() + 1;
@@ -511,7 +512,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
 
      
             allSleepInLocalstorage.forEach(function(entry, i){
-                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnight)){
+                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnightUntillNext)){
                     allSleepInLocalstorageInRange.push(entry);
                 } 
             });
@@ -567,6 +568,14 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                      }
                  }
              });
+             /*
+             if (!($scope.isEven(allSleepInLocalstorageInRange.length))){
+                   allSleepInLocalstorageInRange.push(zeroHour);
+             }
+                
+            allSleepInLocalstorageInRange.sort();
+            allCaffeineinLocalStorageInRange.sort();
+            */
              
             //var editModeStartTime = moment(initialCalendar).toDate().getTime() + 1;
             //var editModeEndTime = moment(initialCalendar).add(initialDuration.ts, 'ms').toDate().getTime() + 1;
@@ -718,8 +727,10 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
             var yesterdaysSleepTime = zeroHour - 3600000;
             var tomorrowMidnight = zeroHour + (3600000 * 48) - 1;
             var tomorrowSleepTime = nextDaySleepEnd + (3600000 * 16);
+            var tomorrowMidnightUntillNext = zeroHour + (3600000 * 72);
             var userInputStartTime = cEvent.startsAt.getTime() + 1;
             var userInputEndTime = cEvent.endsAt.getTime() + 1;
+
             
             //console.log(lastDaySleepEnd);
             //console.log(endOfDay);
@@ -759,7 +770,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
 
      
             allSleepInLocalstorage.forEach(function(entry, i){
-                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnight)){
+                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnightUntillNext)){
                     allSleepInLocalstorageInRange.push(entry);
                 } 
             });
@@ -823,7 +834,23 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                      }
                  }
              });
+             /*
+             if (!($scope.isEven(allSleepInLocalstorageInRange.length))){
+                   allSleepInLocalstorageInRange.push(zeroHour);
+                }
+                
+            allSleepInLocalstorageInRange.sort();
+            allCaffeineinLocalStorageInRange.sort();
+            */
+            //Remove Deleted Default From Array
+             allSleepInLocalstorageInRange.forEach(function(entry, i){ 
+                 if (allSleepInLocalstorageInRange[i] == allSleepInLocalstorageInRange[i+1]){
+                     allSleepInLocalstorageInRange.splice(i, 1);
+                     allSleepInLocalstorageInRange.splice(i, 1);
+                 }
+             });
 
+             
               if (!($scope.editMode)){ 
                     //check user input if it conflicts with the sleep time
                 allSleepInLocalstorageInRange.forEach(function(entry, i){ 
@@ -882,6 +909,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                 
                         if(allSleepInLocalstorageInRange.length > 0){ 
                             allSleepInLocalstorageInRange.forEach(function(entry, i){ 
+                                //console.log(moment(entry).toDate());
                                 if(i % 2 == 0){
                                     if(($scope.between(userInputStartTime, allSleepInLocalstorageInRange[i], allSleepInLocalstorageInRange[i+1])) || 
                                         ($scope.between(userInputEndTime, allSleepInLocalstorageInRange[i], allSleepInLocalstorageInRange[i+1]))){
@@ -920,6 +948,10 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                                 if (!((allSleepInLocalstorageInRange[i] == moment(initialCalendar).toDate().getTime() ) && (allSleepInLocalstorageInRange[i+1] == moment(initialDuration).toDate().getTime()))){
                                                     output.ok = false;
                                                     output.message = "Conflict With existing Sleep Time";
+                                                    console.log('--------');
+                                                    console.log(moment(initialCalendar).toDate());
+                                                    console.log(moment(allSleepInLocalstorageInRange[i]).toDate());
+                                                    console.log(moment(allSleepInLocalstorageInRange[i+1]).toDate());
         
                                                 }
 
@@ -1113,10 +1145,12 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                 var allCaffeineinLocalStorageInRange = [];
                 var defaultSevenAmExist = true;
                 var defaultElevenPmExist = true;
+                var defaultTempTomorrowSleepTime = true;
                 var yesterdaysSleepTime = zeroHour - 3600000;
                 var tomorrowMidnight = zeroHour + (3600000 * 48) - 1;
                 var tomorrowSleepTime = nextDaySleepEnd + (3600000 * 16);
                 var userInputStartTime = cEvent.startsAt.getTime() + 1;
+                var tomorrowMidnightUntillNext = zeroHour + (3600000 * 72);
               
                 //console.log(lastDaySleepEnd);
                 //console.log(endOfDay);
@@ -1157,7 +1191,7 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
 
               
                 allSleepInLocalstorage.forEach(function(entry, i){
-                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnight)){
+                if ($scope.between(entry, yesterdaysSleepTime, tomorrowMidnightUntillNext)){
                     allSleepInLocalstorageInRange.push(entry);
                 } 
                 });
@@ -1184,6 +1218,14 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                         }
                     }
                 });
+
+                allSleepInLocalstorage.forEach(function(entry, i){
+                    if(i % 2 == 0){
+                        if ((allSleepInLocalstorage[i] == (tomorrowSleepTime + 1)) && (allSleepInLocalstorage[i+1] == (tomorrowSleepTime + 1))){
+                            defaultTempTomorrowSleepTime = false;
+                        }
+                    }
+                });
             
                 if (defaultSevenAmExist) {
                     allSleepInLocalstorageInRange.push(yesterdaysSleepTime);
@@ -1196,12 +1238,15 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                 }
 
              
-        
+                if (defaultTempTomorrowSleepTime){
+                    allSleepInLocalstorageInRange.push(tomorrowSleepTime);
+                    allSleepInLocalstorageInRange.push(tomorrowMidnight);
+                }
 
                 allSleepInLocalstorageInRange.sort();
                 allCaffeineinLocalStorageInRange.sort();
-
-
+               
+            
                 allSleepInLocalstorageInRange.forEach(function(entry, i){  
                     if(i % 2 == 0){ 
                         if(allSleepInLocalstorageInRange[i] == allSleepInLocalstorageInRange[i+1]){
@@ -1211,6 +1256,25 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                     }
                 });
                
+            /*
+               if(!(defaultSevenAmExist)){
+                       if (!($scope.isEven(allSleepInLocalstorageInRange.length))){
+                            allSleepInLocalstorageInRange.push(zeroHour);
+                       }
+                } 
+            
+                if(!(defaultTempTomorrowSleepTime)){
+                     if (!($scope.isEven(allSleepInLocalstorageInRange.length))){
+                            allSleepInLocalstorageInRange.push(tomorrowMidnight);
+                       }
+                }
+                allSleepInLocalstorageInRange.sort();
+                allCaffeineinLocalStorageInRange.sort();
+                */
+                //console.log($scope.isEven(allSleepInLocalstorageInRange.length));
+                
+            
+
                 if (output.ok) {
                     allCaffeineinLocalStorageInRange.forEach(function(entry, i){
                         if (entry == userInputStartTime) {
@@ -1245,9 +1309,9 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                 }
 
                 if (output.ok) {
-                   // console.log(userInputStartTime);
+                    //console.log(allSleepInLocalstorageInRange.lenght);
                     allSleepInLocalstorageInRange.forEach(function(entry, i){ 
-                
+
                     if(i % 2 == 0){
                         if($scope.between(userInputStartTime, allSleepInLocalstorageInRange[i], allSleepInLocalstorageInRange[i+1])){
                           
@@ -1274,8 +1338,17 @@ atoAlertnessControllers.controller('MyChargeCalendarModalController', ['$scope',
                                         if((userInputStartTime == allSleepInLocalstorageInRange[i]) || (userInputStartTime == allSleepInLocalstorageInRange[i+1])){
                                             
                                         } else {
-                                            output.ok = false;
-                                            output.message = "Conflict With existing Sleep Time";
+                                            userInputStartTime = userInputStartTime + 2;
+                                           if((userInputStartTime == allSleepInLocalstorageInRange[i]) || (userInputStartTime == allSleepInLocalstorageInRange[i+1])){
+                                            
+                                            } else {
+                                                output.ok = false;
+                                                output.message = "Conflict With existing Sleep Time";
+                                                console.log(moment(allSleepInLocalstorageInRange[i]).toDate());
+                                                console.log(moment(userInputStartTime).toDate());
+                                                console.log(moment(allSleepInLocalstorageInRange[i+1]).toDate());
+                                            }
+                                           
                                         }
                                        
                                         

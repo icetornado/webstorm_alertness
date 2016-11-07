@@ -22,14 +22,32 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
     function($rootScope, $scope, $uibModal, moment, calendarConfig, MyChargeDataService, DEFAULT_PREDICTION_DAYS,
              DEFAULT_SLEEP_START, DEFAULT_SLEEP_DURATION, DEFAULT_SLEEP_END){
         var vm = this;
-
+        
         vm.calendarView = 'month';
         vm.viewDate = new Date();
         vm.isCellOpen = false;
         vm.eventsChangedState = false;
+        vm.message = '';
         $scope.between = function (x, min, max) {
             return x >= min && x <= max;
         }
+        
+         //$rootScope.$broadcast('topic', 'message');
+        $scope.$watch('vm.events', function(newVal, oldVal){
+            if(newVal!=oldVal) {
+                $scope.$broadcast('vm.events',{"events":newVal})
+            }    
+        });
+        
+        
+        $rootScope.MyChargeCalendarControllerScopeVar = $scope;
+        //$rootScope.sleepActions = sleepActions;
+       // $rootScope.caffeineActions = caffeineActions;
+        $rootScope.addActions = addActions;
+        $rootScope.MyChargeCalendarControllerScope = $scope;
+        $rootScope.vmmessage = vm.message;
+        
+
 
         /* Used for fixing bugs caused by Adding Default Sleep */
         $scope.day = {};
@@ -110,7 +128,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                 label: '<div class=\'btn btn-primary\'>+ Sleep</div>',
                 onClick: function(args) {
                         /*  Used for fixing bugs caused by Adding Default Sleep */
-
+                        console.log(calendarConfig);
                         if ($scope.defaultElevenPmExist){ 
 
                             try {
@@ -181,6 +199,8 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                 label: '<div class=\'btn btn-primary\'>+ Caffeine</div>',
                 onClick: function(args) {
                    // console.log(vm.events);
+                   console.log(args);
+                   console.log(args.calendarEvent);
 
                     showModal('Add-Coffee', args.calendarEvent);
                     vm.events.push(
@@ -250,7 +270,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                 }
             }
         });
-
+       
         /**
          *  This function is called when the calendar is being rendered
          *  @param {object} - a calendar cell object
@@ -327,29 +347,25 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
             console.log('vm.myOnTimespanClick');
            /* Used for fixing bugs caused by Adding Default Sleep */
            $scope.day = day;
+           $rootScope.day = $scope.day;
+           $rootScope.event = {
+                title: '',
+                color: '',
+                startsAt: moment($rootScope.day).add(1, 'days').subtract(1, 'milliseconds').toDate(),
+                draggable: false,
+                resizable: false,
+                incrementsBadgeTotal: false,
+                allDay: true,
+                actions: $rootScope.addActions,
+                cssClass: 'fake-event-class'
+            }
+
            $scope.todaysDateSleeptime = moment($scope.day).toDate().getTime() + (3600000 * 23) + 1;
            $scope.isTodaysDateDeleted($scope.todaysDateSleeptime, vm.events);
            $scope.sliceCount = 0;
            $scope.caffeineClickCount = 0;
            $scope.sliceCaffieneCount = 0;
-           /* End Used for fixing bugs caused by Adding Default Sleep */
-
-            if(!vm.isCellOpen) {
-                vm.toggleFakeEvent(day, 'add');
-                vm.fakeEventDate = day;
-                vm.isCellOpen = true;
-            } else {
-                if(vm.fakeEventDate.getTime() == moment(day).toDate().getTime()) {
-                    vm.toggleFakeEvent(day, 'remove');
-                    vm.isCellOpen = false;
-                }
-                else {
-                    vm.toggleFakeEvent(vm.fakeEventDate, 'remove');
-                    vm.toggleFakeEvent(day, 'add');
-                    vm.fakeEventDate = day;
-                    vm.isCellOpen = true;
-                }
-            }  
+      
         }
 
         vm.toggleFakeEvent = function(day, act) {
@@ -380,7 +396,8 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
         }
         
         showModal = function(action, event){
-
+            console.log(event);
+            console.log($scope.vm.events);
             if(action == 'Edit-Sleep' || action == 'Add-Sleep') {
                 var modalInstance = $uibModal.open({
                     //animation: vm.animationsEnabled,
@@ -449,13 +466,14 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
             
             if(action == 'Add-Sleep') {
                 modalInstance.result.then(function (msg) {
+                            //console.log(typeof msg);
                             vm.message = msg;
                             /* Used for fixing bugs caused by Adding Default Sleep */
-                            vm.toggleFakeEvent($scope.day, 'add');
+                            //vm.toggleFakeEvent($scope.day, 'add');
                             
                         }, function(){
                             /* Used for fixing bugs caused by Adding Default Sleep */
-                           vm.toggleFakeEvent($scope.day, 'add');
+                           //vm.toggleFakeEvent($scope.day, 'add');
                            //vm.events.splice(-1,1);
                           
                         }
@@ -486,7 +504,7 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                 vm.events.push(newSleep);
                 //console.log(newSleep);
                 vm.myOnTimespanClick($scope.day);
-                vm.toggleFakeEvent($scope.day, 'add');
+                //vm.toggleFakeEvent($scope.day, 'add');
     
                 
             }
@@ -547,8 +565,150 @@ atoAlertnessMyChargeCalendarModule.config(function(calendarConfig) {
                     }
                 });
             }
-            vm.toggleFakeEvent($scope.day, 'add');
+            //vm.toggleFakeEvent($scope.day, 'add');
         };
     }
-]);
+]).controller('MyChargeCalendarAddActionController', ['$rootScope', '$scope', '$uibModal', 'moment', 'calendarConfig', 'MyChargeDataService',
+    'DEFAULT_PREDICTION_DAYS', 'DEFAULT_SLEEP_START', 'DEFAULT_SLEEP_DURATION', 'DEFAULT_SLEEP_END',
+    function($rootScope, $scope, $uibModal, moment, calendarConfig, MyChargeDataService, DEFAULT_PREDICTION_DAYS,
+             DEFAULT_SLEEP_START, DEFAULT_SLEEP_DURATION, DEFAULT_SLEEP_END){
+        
+            $scope.vmevents = {};
+            $scope.$on('topic', function (event, arg) { 
+                $scope.receiver = 'got your ' + arg;
+                console.log($scope.receiver);
+            });
+
+            $scope.$on('vm.events', function(event, args){
+                $scope.vmevents = args;
+            });
+
+          
+            $scope.test = function() {
+                     // console.log($rootScope.day);
+                     //console.log($scope.vmevents.events);
+                    //console.log($rootScope.MyChargeCalendarControllerScopeVar);
+            }
+
+            $scope.addSleep = function() {
+                    
+                    $scope.showModal('Add-Sleep', $rootScope.event);
+                    
+            }
+             $scope.addCaffeine = function() {
+                    $scope.showModal('Add-Coffee', $rootScope.event);
+            }
+
+             var sleepActions = [
+            {
+                label: '<i class=\'glyphicon glyphicon-remove\'></i>',
+                onClick: function(args) {
+                    deleteEvent('Delete-Sleep', args.calendarEvent);
+                }
+            },
+            {
+                label: '<i class=\'glyphicon glyphicon-pencil\'></i>',
+                onClick: function(args) {
+                    showModal('Edit-Sleep', args.calendarEvent);
+                }
+            }
+            ];
+
+            var caffeineActions = [
+                {
+                    label: '<i class=\'glyphicon glyphicon-remove\'></i>',
+                    onClick: function(args) {
+                        deleteEvent('Delete-Coffee', args.calendarEvent);
+                    }
+                },
+                {
+                    label: '<i class=\'glyphicon glyphicon-pencil\'></i>',
+                    onClick: function(args) {
+                        showModal('Edit-Coffee', args.calendarEvent);
+                    }
+                }
+            ];
+       
+
+
+        $scope.showModal = function(action, event){
+            //console.log(event);
+            if(action == 'Add-Sleep') {
+                var modalInstance = $uibModal.open({
+                    //animation: vm.animationsEnabled,
+                    windowTemplateUrl: './templates/modal/window.html',
+                    templateUrl: 'sleepModal.html',
+                    controller: 'MyChargeCalendarModalController',
+                    backdrop: false,
+                    size: 'small',
+                    scope: $rootScope.MyChargeCalendarControllerScope,
+                    resolve: {
+                        calEvent: function(){
+                            return event;
+                        },
+                        eventType : function(){
+                            return 'sleep';
+                        },
+                        action: function() {
+                            return action;
+                        },
+                        events: function() {
+                            return $scope.vmevents.events;
+                        },
+                        actionButtons: function() {
+                            return sleepActions;
+                        },
+                        calendarConfig: function() {
+                            return calendarConfig;
+                        }
+                    }
+                    
+                });
+                
+            }
+            else if(action == 'Add-Coffee') {
+                var modalInstance = $uibModal.open({
+                    //animation: vm.animationsEnabled,
+                    windowTemplateUrl: './templates/modal/window.html',
+                    templateUrl: 'caffeineModal.html',
+                    controller: 'MyChargeCalendarModalController',
+                    backdrop: false,
+                    size: 'small',
+                    scope: $rootScope.MyChargeCalendarControllerScope,
+                    resolve: {
+                        calEvent: function(){
+                            //console.log(event);
+                            return event;
+                        },
+                        eventType : function(){
+                            return 'caffeine';
+                        },
+                        action: function() {
+                            return action;
+                        },
+                        events: function() {
+                            return $scope.vmevents.events;
+                        },
+                        actionButtons: function() {
+                            return caffeineActions;
+                        },
+                        calendarConfig: function() {
+                            return calendarConfig;
+                        }
+                    }
+                });
+            }
+
+            
+           
+                 modalInstance.result.then(function (msg) {
+                        $rootScope.vmmessage = msg;
+                    }, function(){
+                    }
+                );
+            
+           
+        }
+            
+}]);
 
